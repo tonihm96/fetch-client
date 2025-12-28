@@ -1,0 +1,40 @@
+{
+  "name": "fetch-client",
+  "version": "1.0.0",
+  "description": "A lightweight wrapper class around the Fetch API with built-in retry and timeout capabilities.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "fetch",
+    "http",
+    "client",
+    "retry",
+    "timeout",
+    "typescript"
+  ],
+  "author": "Antonio Henrique Macan",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
