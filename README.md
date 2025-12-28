@@ -86,7 +86,7 @@ await client.delete('/users/1');
 
 You can intercept requests and responses. The addHook method returns a cleanup function to remove the hook later.
 
-### Request Hooks: Useful for adding dynamic tokens or logging.
+### Request Hooks
 
 ```typescript
 const removeHook = client.addHook('beforeRequest', async (req) => {
@@ -104,7 +104,7 @@ const removeHook = client.addHook('beforeRequest', async (req) => {
 removeHook();
 ```
 
-### Response Hooks: Useful for global error handling or response transformation.
+### Response Hooks
 
 ```typescript
 const removeHook = client.addHook('afterResponse', (req, res) => {
