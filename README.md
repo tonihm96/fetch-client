@@ -109,8 +109,7 @@ removeHook();
 ```typescript
 const removeHook = client.addHook('afterResponse', (req, res) => {
   if (res.status === 401) {
-    // Handle unauthorized access globally
-    window.location.href = '/login';
+    // Handle unauthorized responses globally
   }
 });
 
