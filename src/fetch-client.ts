@@ -309,13 +309,6 @@ export default class FetchClient extends FetchClientEventEmitter<FetchClientEven
     // Normalize timeout value
     const timeout = request.timeout ?? this.defaults.timeout ?? DEFAULT_TIMEOUT;
 
-    // Freeze request to ensure immutability but do not freeze headers and searchParams
-    // as they are instantiated for the request itself and cannot be frozen
-    if (request.retry) {
-      Object.freeze(request.retry);
-    }
-    Object.freeze(request);
-
     // Resolve fetch function
     const fetchFn = request.fetch ?? fetch;
 
