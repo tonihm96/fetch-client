@@ -1,22 +1,20 @@
 # FetchClient
 
-A robust, strongly-typed, and feature-rich wrapper around the native Fetch API. Built with TypeScript, it provides a powerful toolkit for modern web applications, including an interceptor system (hooks), automatic retries with exponential backoff, timeout management, and immutable state handling.
+A TypeScript wrapper for the native Fetch API. This library implements standard HTTP client features such as interceptors, automatic retries, and timeout management on top of the browser's native capabilities.
 
 ![License MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 
-> **⚠️ Educational Project**: This library was developed as a comprehensive study project to deepen my understanding of HTTP client architectures, design patterns and TypeScript generics. While fully functional and tested, its primary purpose is academic.
+> **Note**: This is an educational project. It was created to study HTTP client architectures, design patterns, and TypeScript generics. While the code is tested and functional, it is primarily intended for academic and learning purposes.
+## Key Functionality
 
-## Features
-
-- **Type-Safe**: Built entirely in TypeScript with generics for request and response bodies.
-- **Hooks System**: Powerful `beforeRequest` and `afterResponse` interceptors to modify requests or inspect responses.
-- **Automatic Retries**: Configurable retry logic with exponential backoff and custom predicates.
-- **Timeout Handling**: Built-in support for request timeouts using `AbortController`.
-- **Stream Safety**: Smart detection of locked `ReadableStream` bodies to prevent unsafe retries.
-- **Event Driven**: Listen to events like `onDefaultsChanged` to react to configuration updates.
-- **Immutable Defaults**: Configuration state is frozen and merged intelligently to prevent side effects by external mutations.
-- **HTTP Shortcuts**: Semantic methods for `get`, `post`, `put`, `delete`, `patch`, etc.
+- **TypeScript Support**: Uses generics for request and response body typing.
+- **Interceptors**: Supports `beforeRequest` and `afterResponse` hooks.
+- **Retry Logic**: Implements exponential backoff and configurable retry predicates.
+- **Timeouts**: Wraps `AbortController` to handle request timeouts.
+- **Stream Handling**: Checks for locked `ReadableStream` bodies before retrying.
+- **Configuration**: Allows runtime updates to default headers and settings (immutable state).
+- **Shortcuts**: Helper methods for standard HTTP verbs (`get`, `post`, `put`, `delete`, etc.).
 
 ## Installation
 
@@ -28,16 +26,16 @@ npm install fetch-client
 yarn add fetch-client
 ```
 
-## Basic Usage
+## Usage
 
-Import the class and create an instance. You can define a base URL and default headers.
+Initialize the client with default options.
 
 ```typescript
 import FetchClient from 'fetch-client';
 
 // 1. Create an instance
 const client = new FetchClient({
-  baseUrl: '[https://api.example.com/v1](https://api.example.com/v1)',
+  baseUrl: 'https://api.example.com/v1',
   headers: {
     Authorization: 'Bearer YOUR_TOKEN',
   },
@@ -63,17 +61,15 @@ try {
 }
 ```
 
-## Documentation
-
 ### HTTP Methods
 
-The client provides shortcut methods for all standard HTTP verbs. It automatically handles JSON.stringify if you provide a json payload, or keeps the body as-is for FormData, Blob, or URLSearchParams.n
+The client handles body serialization based on input type.
 
 ```typescript
-// POST JSON
+// POST JSON (automatically stringifies and sets Content-Type)
 await client.post('/users', { json: { name: 'John Doe', age: 30 } });
 
-// POST FormData (Content-Type header is automatically removed to let browser set boundary)
+// POST FormData (browser sets boundary automatically)
 const formData = new FormData();
 formData.append('file', fileInput.files[0]);
 await client.post('/upload', { body: formData });
@@ -82,25 +78,20 @@ await client.post('/upload', { body: formData });
 await client.delete('/users/1');
 ```
 
-## Hooks (Interceptors)
+## Interceptors (Hooks)
 
-You can intercept requests and responses. The addHook method returns a cleanup function to remove the hook later.
+Hooks allow code execution before the request is sent or after the response is received.
 
 ### Request Hooks
 
 ```typescript
 const removeHook = client.addHook('beforeRequest', async (req) => {
-  console.log(`Sending ${req.method} request to ${req.url}`);
-
-  // You can modify the request object directly
-  const token = await getFreshToken();
-  req.headers.set('Authorization', `Bearer ${token}`);
-
-  // If you want to replace the request entirely, return a new Request object
+  // Modify the request instance
+  req.headers.set('Authorization', `Bearer ${await getToken()}`);
   return req;
 });
 
-// Later, you can remove this specific hook:
+// Cleanup
 removeHook();
 ```
 
@@ -113,13 +104,13 @@ const removeHook = client.addHook('afterResponse', (req, res) => {
   }
 });
 
-// Remove the hook when no longer needed
+// Cleanup
 removeHook();
 ```
 
-## Automatic Retries
+## Retries
 
-Configure automatic retries for failed requests. You can define limits, delays, and conditions.
+Retries can be configured via the `retry` object.
 
 ```typescript
 const client = new FetchClient({
@@ -137,9 +128,9 @@ const client = new FetchClient({
 });
 ```
 
-## Managing Defaults & Events
+## Defaults & Events
 
-The client allows you to update default configurations at runtime. It uses a smart merge strategy for headers and search params.
+Defaults can be updated at runtime. The `onDefaultsChanged` event triggers when the configuration changes.
 
 ```typescript
 // Listen to changes
@@ -163,28 +154,22 @@ const config = client.getDefaults();
 
 ## Error Handling
 
-The library throws specific error classes for better control.
+The library exposes specific error classes.
 
 ```typescript
 import FetchClient, { FetchClientError, FetchClientTimeoutError } from 'fetch-client';
 
 try {
-  await client.get('/risky-endpoint');
+  await client.get('/endpoint');
 } catch (error) {
   if (error instanceof FetchClientTimeoutError) {
-    console.error('Request took too long!');
+    // Handle timeout
   } else if (error instanceof FetchClientError) {
-    console.error(`API Error: ${error.status} ${error.statusText}`);
-    console.log('Original Request:', error.request);
-  } else {
-    console.error('Network or unexpected error', error);
+    // Handle HTTP error (4xx, 5xx)
+    console.log(error.status, error.statusText);
   }
 }
 ```
-
-## Acknowledgements & Inspiration
-
-This project is open-source and non-profit. The architecture and logic were heavily inspired by excellent open-source libraries in the JavaScript ecosystem. My goal was to implement their core concepts to better understand the internals of HTTP client design.
 
 ## License
 
